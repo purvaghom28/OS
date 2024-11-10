@@ -1,0 +1,51 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<semaphore.h>
+#include<pthread.h>
+sem_t r,w;
+int rdcnt=0;
+
+
+void* reader(void* arg)
+{
+sem_wait(&r);
+rdcnt++;
+if(rdcnt==1)
+sem_wait(&w);
+sem_post(&r);
+// reading operation
+printf("\n reader is reading");
+sem_wait(&r);
+rdcnt--;
+if(rdcnt==0)
+sem_post(&w);
+sem_post(&r);
+}
+
+void* writer (void* arg)
+{
+sem_wait(&w);
+printf("\n writer is writting");
+sem_post(&w);
+}
+
+void main(){
+pthread_t rt[3],wt[3];
+int i,j;
+sem_init(&r,0,1);
+sem_init(&w,0,1);
+for(j=0;j<3;j++)
+{
+pthread_create(&wt[i],NULL,writer,NULL);
+}
+for(i=0;i<3;i++) 
+{
+pthread_create(&rt[i],NULL,reader,NULL);
+}
+for(i=0;i<3;i++){
+pthread_join(wt[i],NULL);
+}
+for(i=0;i<3;i++){
+pthread_join(rt[i],NULL);
+}
+}
