@@ -1,0 +1,73 @@
+
+
+int findLRU(int time[], int frameSize) {
+    int min = time[0], index = 0;
+    for (int i = 1; i < frameSize; i++) {
+        if (time[i] < min) {
+            min = time[i];
+            index = i;
+        }
+    }
+    return index;
+}
+
+void LRU(int pages[], int numPages, int frameSize) {
+    int frames[frameSize], time[frameSize], pageFaults = 0, clock = 0;
+    
+    for (int i = 0; i < frameSize; i++) {
+        frames[i] = -1;
+        time[i] = 0;
+    }
+
+    printf("\nLRU Page Replacement:\n");
+    for (int i = 0; i < numPages; i++) {
+        bool found = false;
+
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == pages[i]) {
+                found = true; 
+                time[j] = ++clock;
+                printf("%d: ", pages[i]);
+                break;
+            }
+        }
+
+        if (!found) {
+            int lruIndex = findLRU(time, frameSize); 
+            frames[lruIndex] = pages[i];  
+            time[lruIndex] = ++clock;  
+            pageFaults++;
+            printf("Page fault: %d, Frames: ", pages[i]);
+        }
+
+        printFrames(frames, frameSize);  
+    }
+
+    printf("\nTotal Page Faults (LRU): %d\n", pageFaults);
+}
+
+int main() {
+    int numPages, frameSize, pages[MAX];
+
+    printf("Enter the number of pages: ");
+    scanf("%d", &numPages);
+
+    printf("Enter the page reference string: ");
+    for (int i = 0; i < numPages; i++) {
+        scanf("%d", &pages[i]);
+    }
+
+    printf("Enter frame size (minimum 3): ");
+    scanf("%d", &frameSize);
+
+    if (frameSize < 3) {
+        printf("Frame size must be at least 3!\n");
+        return -1;
+    }
+
+    FCFS(pages, numPages, frameSize);
+    LRU(pages, numPages, frameSize);
+    Optimal(pages, numPages, frameSize);
+
+    return 0;
+}
