@@ -1,0 +1,75 @@
+#include <stdio.h>
+
+int main() {
+    int n, burstTime[10], arrivalTime[10], remainingTime[10];
+    int complete = 0, currentTime = 0, minRemainingTime = 9999;
+    int shortest = 0, finishTime;
+    int waitingTime[10] = {0}, turnAroundTime[10] = {0}, totalWaitingTime = 0, totalTurnAroundTime = 0;
+    int isProcessFound = 0;
+
+    // Input the number of processes
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    // Input arrival and burst times for each process
+    printf("Enter Arrival Time and Burst Time for each process:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Process %d - Arrival Time: ", i+1);
+        scanf("%d", &arrivalTime[i]);
+        printf("Process %d - Burst Time: ", i+1);
+        scanf("%d", &burstTime[i]);
+        remainingTime[i] = burstTime[i];  // Initialize remaining time
+    }
+
+    // SJF Preemptive Scheduling
+    while (complete < n) {
+        // Find the process with the smallest remaining time among processes that have arrived
+        minRemainingTime = 9999;
+        isProcessFound = 0;
+        
+        for (int i = 0; i < n; i++) {
+            if (arrivalTime[i] <= currentTime && remainingTime[i] > 0 && remainingTime[i] < minRemainingTime) {
+                minRemainingTime = remainingTime[i];
+                shortest = i;
+                isProcessFound = 1;
+            }
+        }
+
+        // If no process found, increment time
+        if (!isProcessFound) {
+            currentTime++;
+            continue;
+        }
+
+        // Execute the shortest process
+        remainingTime[shortest]--;
+        
+        // If a process finishes
+        if (remainingTime[shortest] == 0) {
+            complete++;
+            finishTime = currentTime + 1;
+            waitingTime[shortest] = finishTime - burstTime[shortest] - arrivalTime[shortest];
+            turnAroundTime[shortest] = finishTime - arrivalTime[shortest];
+
+            // Ensure waiting time is not negative
+            if (waitingTime[shortest] < 0) 
+                waitingTime[shortest] = 0;
+
+            totalWaitingTime += waitingTime[shortest];
+            totalTurnAroundTime += turnAroundTime[shortest];
+        }
+        currentTime++;
+    }
+
+    // Display results
+    printf("\nProcess\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t\t%d\t\t%d\t\t%d\n", i+1, arrivalTime[i], burstTime[i], waitingTime[i], turnAroundTime[i]);
+    }
+
+    // Display average times
+    printf("\nAverage Waiting Time: %.2f", (float)totalWaitingTime / n);
+    printf("\nAverage Turnaround Time: %.2f\n", (float)totalTurnAroundTime / n);
+
+    return 0;
+}
