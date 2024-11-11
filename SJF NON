@@ -1,0 +1,68 @@
+#include <stdio.h>
+
+int main() {
+    int n, burstTime[10], arrivalTime[10], waitingTime[10], turnAroundTime[10];
+    int completed[10] = {0}, currentTime = 0, totalWaitingTime = 0, totalTurnAroundTime = 0;
+
+    // Input the number of processes
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    // Input arrival and burst times for each process
+    printf("Enter Arrival Time and Burst Time for each process:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Process %d - Arrival Time: ", i + 1);
+        scanf("%d", &arrivalTime[i]);
+        printf("Process %d - Burst Time: ", i + 1);
+        scanf("%d", &burstTime[i]);
+    }
+
+    // SJF Non-Preemptive Scheduling
+    int completedProcesses = 0;
+    while (completedProcesses < n) {
+        int shortestJobIndex = -1;
+        int minBurstTime = 9999;
+
+        // Find the shortest job that has arrived and is not yet completed
+        for (int i = 0; i < n; i++) {
+            if (arrivalTime[i] <= currentTime && !completed[i] && burstTime[i] < minBurstTime) {
+                minBurstTime = burstTime[i];
+                shortestJobIndex = i;
+            }
+        }
+
+        // If no job has arrived yet, increment current time
+        if (shortestJobIndex == -1) {
+            currentTime++;
+            continue;
+        }
+
+        // Process the shortest job
+        currentTime += burstTime[shortestJobIndex];
+        waitingTime[shortestJobIndex] = currentTime - arrivalTime[shortestJobIndex] - burstTime[shortestJobIndex];
+        turnAroundTime[shortestJobIndex] = currentTime - arrivalTime[shortestJobIndex];
+
+        // Ensure waiting time is not negative
+        if (waitingTime[shortestJobIndex] < 0)
+            waitingTime[shortestJobIndex] = 0;
+
+        completed[shortestJobIndex] = 1;  // Mark the process as completed
+        completedProcesses++;
+
+        // Accumulate total waiting and turnaround times
+        totalWaitingTime += waitingTime[shortestJobIndex];
+        totalTurnAroundTime += turnAroundTime[shortestJobIndex];
+    }
+
+    // Display results
+    printf("\nProcess\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, arrivalTime[i], burstTime[i], waitingTime[i], turnAroundTime[i]);
+    }
+
+    // Display average times
+    printf("\nAverage Waiting Time: %.2f", (float)totalWaitingTime / n);
+    printf("\nAverage Turnaround Time: %.2f\n", (float)totalTurnAroundTime / n);
+
+    return 0;
+}
