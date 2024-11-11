@@ -1,0 +1,44 @@
+#include <stdio.h>
+
+int main() {
+    int n, arrivalTime[10], burstTime[10], waitingTime[10], turnAroundTime[10];
+    int totalWaitingTime = 0, totalTurnAroundTime = 0;
+
+    // Input the number of processes
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    // Input arrival and burst times
+    printf("Enter Arrival Time and Burst Time for each process:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Process %d - Arrival Time: ", i+1);
+        scanf("%d", &arrivalTime[i]);
+        printf("Process %d - Burst Time: ", i+1);
+        scanf("%d", &burstTime[i]);
+    }
+
+    // FCFS Scheduling calculations
+    waitingTime[0] = 0;  // Waiting time for the first process is 0
+    for (int i = 1; i < n; i++) {
+        waitingTime[i] = (waitingTime[i - 1] + burstTime[i - 1]) - arrivalTime[i];
+        if (waitingTime[i] < 0) waitingTime[i] = 0;  // If a process arrives later
+    }
+
+    for (int i = 0; i < n; i++) {
+        turnAroundTime[i] = burstTime[i] + waitingTime[i];
+        totalWaitingTime += waitingTime[i];
+        totalTurnAroundTime += turnAroundTime[i];
+    }
+
+    // Display results
+    printf("\nProcess\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, arrivalTime[i], burstTime[i], waitingTime[i], turnAroundTime[i]);
+    }
+
+    // Display average times
+    printf("\nAverage Waiting Time: %.2f", (float)totalWaitingTime / n);
+    printf("\nAverage Turnaround Time: %.2f\n", (float)totalTurnAroundTime / n);
+
+    return 0;
+}
